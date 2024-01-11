@@ -1,12 +1,20 @@
-import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 
-class CameraRecord extends StatefulWidget {
+class Video extends StatefulWidget {
+  const Video({
+    Key? key,
+    this.width,
+    this.height,
+  }) : super(key: key);
+
+  final double? width;
+  final double? height;
+
   @override
   _CameraRecordState createState() => _CameraRecordState();
 }
 
-class _CameraRecordState extends State<CameraRecord> {
+class _CameraRecordState extends State<Video> {
   CameraController? _controller;
   List<CameraDescription>? _cameras;
   bool _isRecording = false;
@@ -20,7 +28,7 @@ class _CameraRecordState extends State<CameraRecord> {
   Future<void> _initCamera() async {
     _cameras = await availableCameras();
     if (_cameras != null && _cameras!.isNotEmpty) {
-      _controller = CameraController(_cameras![0], ResolutionPreset.high);
+      _controller = CameraController(_cameras![0], ResolutionPreset.max);
       await _controller!.initialize();
       setState(() {});
     }
@@ -40,6 +48,8 @@ class _CameraRecordState extends State<CameraRecord> {
       final file = await _controller!.stopVideoRecording();
       setState(() {
         _isRecording = false;
+
+        FFAppState().video = file.path;
       });
       // ここで動画ファイルを処理
       // 例: print(file.path);
@@ -61,7 +71,11 @@ class _CameraRecordState extends State<CameraRecord> {
       body: CameraPreview(_controller!),
       floatingActionButton: FloatingActionButton(
         onPressed: _isRecording ? _stopRecording : _startRecording,
-        child: Icon(_isRecording ? Icons.stop : Icons.videocam),
+        child: Icon(
+          _isRecording ? Icons.stop : Icons.start,
+          size: 10,
+          color: _isRecording ? Colors.red : Colors.white,
+        ),
       ),
     );
   }
